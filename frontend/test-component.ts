@@ -1,4 +1,10 @@
-import { css, customElement, html, LitElement } from "lit-element";
+import {
+  css,
+  customElement,
+  html,
+  internalProperty,
+  LitElement,
+} from "lit-element";
 import { BluetoothPrinterAPI } from "./bluetooth-printer";
 
 import EscPosEncoder from "esc-pos-encoder";
@@ -8,17 +14,23 @@ const printer = new BluetoothPrinterAPI();
 
 @customElement("test-component")
 export class TestComponent extends LitElement {
-  static get styles() {
-    return css``;
-  }
+  @internalProperty()
+  private connected: boolean = false;
+
   render() {
     return html`
       <button @click="${this.connect}">Connect</button>
-      <button @click="${() => this.print("hello")}">Print</button>
+      <button
+        ?disabled=${!this.connected}
+        @click="${() => this.print("hello")}"
+      >
+        Print
+      </button>
     `;
   }
-  connect() {
-    printer.connect();
+  async connect() {
+    await printer.connect();
+    this.connected = true;
   }
 
   print(msg: string) {
